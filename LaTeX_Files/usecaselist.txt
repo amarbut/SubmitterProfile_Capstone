@@ -1,0 +1,39 @@
+% latex table generated in R 3.4.4 by xtable 1.8-3 package
+% Sat Feb 09 19:46:28 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rl}
+  \hline
+ & Usecase \\ 
+  \hline
+1 & Publishing \\ 
+  2 & Other \\ 
+  3 & Admissions \\ 
+  4 & Scholarships \\ 
+  5 & Job applications \\ 
+  6 & Fellowship \\ 
+  7 & Festival or Event \\ 
+  8 & Peer Review \\ 
+  9 & Artwork submissions \\ 
+  10 & Audition \\ 
+  11 & Grant applications \\ 
+  12 & Contest or Campaign Entries \\ 
+  13 & Video/Audio submissions \\ 
+  14 & Award/ Nomination \\ 
+  15 & Contest \\ 
+  16 & Grants \\ 
+  17 & Conference \\ 
+  18 & Exhibition \\ 
+  19 & Residency \\ 
+  20 & Manuscript/Content submissions \\ 
+  21 & Internal Use \\ 
+  22 & Fellowship applications \\ 
+  23 & Internships \\ 
+  24 & Festival or Event submissions \\ 
+  25 & Corporate Giving \\ 
+  26 & Conference submissions \\ 
+  27 & General applications \\ 
+  28 & Audition submissions \\ 
+   \hline
+\end{tabular}
+\end{table}

@@ -1,0 +1,21 @@
+% latex table generated in R 3.4.4 by xtable 1.8-3 package
+% Sat Feb 09 17:37:17 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & Usecase & Count \\ 
+  \hline
+1 & Publishing & 10836 \\ 
+  2 & Grants & 7406 \\ 
+  3 & Contest & 4938 \\ 
+  4 & Award/ Nomination & 4283 \\ 
+  5 & Exhibition & 2626 \\ 
+  6 & Conference & 2342 \\ 
+  7 & Festival or Event & 1879 \\ 
+  8 & Other & 1631 \\ 
+  9 & Fellowship & 1613 \\ 
+  10 & Scholarships & 1311 \\ 
+   \hline
+\end{tabular}
+\end{table}

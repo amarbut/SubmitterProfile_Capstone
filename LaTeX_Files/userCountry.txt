@@ -1,0 +1,21 @@
+% latex table generated in R 3.4.4 by xtable 1.8-3 package
+% Sun Jan 27 18:52:12 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & Country & Number of Submitters \\ 
+  \hline
+1 & United States & 913542.00 \\ 
+  2 & United Kingdom & 59268.00 \\ 
+  3 & Canada & 56316.00 \\ 
+  4 & Australia & 26898.00 \\ 
+  5 & India & 22709.00 \\ 
+  6 & Nigeria & 7458.00 \\ 
+  7 & Germany & 7359.00 \\ 
+  8 & France & 5652.00 \\ 
+  9 & South Africa & 5578.00 \\ 
+  10 & Italy & 5451.00 \\ 
+   \hline
+\end{tabular}
+\end{table}

@@ -1,0 +1,17 @@
+% latex table generated in R 3.4.4 by xtable 1.8-3 package
+% Sat Feb 09 19:34:54 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & Discover Group & Count \\ 
+  \hline
+1 & fiction & 9871 \\ 
+  2 & film & 5302 \\ 
+  3 & grant & 3157 \\ 
+  4 & nonfiction & 8311 \\ 
+  5 & photography & 5451 \\ 
+  6 & poetry & 8100 \\ 
+   \hline
+\end{tabular}
+\end{table}
