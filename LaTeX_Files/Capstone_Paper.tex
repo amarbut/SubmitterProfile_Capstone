@@ -9,7 +9,7 @@
 
 \titleformat{\chapter}[display]
 {\normalfont\huge\bfseries}{}{20pt}{\Huge}   
-\titlespacing*{\chapter}{0pt}{-60pt}{20pt}
+\titlespacing*{\chapter}{0pt}{-50pt}{40pt}
 
 \titleformat{\title}
 	{\Large\bfseries}{}{0pt}{\huge}
@@ -35,19 +35,17 @@
 
 \chapter{Introduction}
 
-Submittable was founded in 2010 by three software developers who were creatives when they were off the clock--one novelist, one musician, and one filmmaker. All three had experience with the submission process for creative work, and saw a need for improvement. This process varied for every opportunity: one organization might want to be mailed a physical copy of the work, another might want to be mailed a thumb drive, another might receive submissions via e-mail, and yet another might use a digital filesharing service. Submittable's founders had experience with the frustrating variety of requirements on the submitter-side, but they quickly realized how much worse it was for the organizations receiving the submissions. These organizations were using physical filing systems, spreadsheets, e-mail chains, and any other number of quasi-structured methods to track the submissions that they'd received and the various communications, review processes, and administrative tasks related to them. This left a lot of room for human error and increased frustration on both the submitter and the organization sides of the whole process.
+Submittable was founded in 2010 by three software developers who were creatives when they were off the clock -- one novelist, one musician, and one filmmaker. All three had experience with the submission process for creative work, and saw a need for improvement. This process varied for every opportunity: one organization might want to be mailed a physical copy of the work, another might want to be mailed a thumb drive, another might receive submissions via e-mail, and yet another might use a digital filesharing service. Submittable's founders had experience with the frustrating variety of requirements on one side, but they quickly realized how much worse it was for the organizations receiving the submissions. These organizations were using physical filing systems, spreadsheets, e-mail chains, and any other number of quasi-structured methods to track the submissions that they'd received and the various communications, review processes, and administrative tasks related to them. This left a lot of room for human error and increased frustration on both sides of the whole process.
 
-With these issues in mind, the three founders set out to create a platform which could accept all of the most common filetypes (even very large files) and streamline the entire submission management pipeline. Almost 10 years later, Submittable has helped 15 thousand organizations collect and manage over 12 million submissions. While the bulk of their clients remain in the creative realm (literary journals, film contests, photography journals, auditions, etc.), they have branched out into almost every industry in which any type of submission needs to be made (research grants, job applications, charitable foundations, residency programs, etc.), and the number of these other clients is growing quickly. The company has grown from three founders to 70 employees, was picked up by the startup incubator Y-Combinator (known for DropBox, AirBnB, Weebly, and others), and has received over \$5 million in venture capital funding. In short, the founders' idea seems to have been a good one.
+With these issues in mind, Submittable's founders set out to create a platform which could accept all of the most common filetypes (even very large files) and streamline the entire submission management pipeline. Almost 10 years later, Submittable has helped 15 thousand organizations collect and manage over 12 million submissions. While the bulk of their clients remain in the creative realm (literary journals, film contests, photography journals, auditions, etc.), they have branched out into almost every industry in which any type of submission needs to be made (research grants, job applications, charitable foundations, residency programs, etc.), and the number of these other clients is growing quickly. The company has grown from three founders to 70 employees, was picked up by the startup incubator Y-Combinator (known for DropBox, AirBnB, Weebly, and others), and has received over \$5 million in venture capital funding. In short, the founders' idea seems to have been a good one.
 
-Submittable's business model has been one of ``software-as-a-service", or SAAS, in which their clients pay a subscription fee for use of the software platform. Different subscription levels are available based on which features each organization wants to use. Some of these include the number of active opportunities allowed (also referred to as ``calls to submission" or ``forms"), the option for multiple reviewers, gallery voting (such as for public photography contests), submission fee collection, and automated reporting. As the business has grown, the list of features offered to client organizations has expanded from those immediately related to the software functionality, to more abstract features such as hosting an opportunity on a custom url, white-labelling the software, or providing marketing services to promote a specific opportunity or organization. This last feature is the inspiration and focus for this project.
+Submittable's business model has been one of ``software-as-a-service", or SAAS, in which their clients pay a subscription fee for use of the software platform. Different subscription levels are available based on which features each organization wants to use. Available features include the number of active opportunities allowed (also referred to as ``calls to submission" or ``forms"), the option for multiple reviewers, gallery voting (such as for public photography contests), submission fee collection, and automated reporting. As the business has grown, the list of features offered to client organizations has expanded from those immediately related to software functionality, to more abstract features such as hosting an opportunity on a custom url, white-labelling the software, or providing marketing services to promote a specific opportunity or organization. This last feature is the inspiration and focus for this project.
 
+When a client opts for a subscription package that includes marketing services, they work with Submittable's marketing team to design a custom campaign for the client's opportunity/opportunities. This campaign can include anything from social media outreach, blog posts, newsletter articles, and custom reminders to interested submitters. Almost always, a marketing campaign also includes an e-mail campaign to a targeted list of Submittable's users (aka submitters). Currently, these lists are populated by matching users (who have opted to be on the marketing services list) based on the use of campaign-specific keywords in their personal description, submission cover letter, or in the description or name of opportunities to which they've submitted. While this method makes a pretty good guess at which submitters would be interested in the campaign, it is a broad way to segment the submitter base, and is likely to both include some submitters who won't be interested and leave out some who would be. 
 
+In this project, we will explore using an adaptation of the PageRank algorithm to rank submitters based on their interest in a specific topic. The goal is to provide Submittable with a more robust method for selecting which submitters should be contacted for a specific marketing campaign. Improving the quality of these lists will improve the experience for both the client and the submitter, with clients reaching users and receiving submissions that are a better fit for their opportunities, and submitters receiving promotions about opportunities to which they are more likely to submit. 
 
-
-            
-- Labelling issues
-
-- Benefits of submitter segmentation for company and submitters
+AND THEN WRAP IT UP SOMEHOW
 
 \chapter{Background}
 \section{Classification algorithms}
@@ -118,6 +116,20 @@ Submittable's business model has been one of ``software-as-a-service", or SAAS, 
 
 --- reiterates that value of $\alpha$ does not have significant effect on ordering of results; this study used $\alpha = 0.25$
 
+\textbf{TwitterRank: https://ink.library.smu.edu.sg/cgi/viewcontent.cgi?article=1503\&context=sis\_research}
+
+--- topic-senstive ranking of influential tweeters
+
+--- defines social network homophily: social networks are homogeneous with regard to manny sociodemographic, behavioral, and inntrapersonal characteristics; ie. "friends" follow each other b/c they have similar interests
+
+--- use LDA to give topic-scores for each tweeter based on aggregate of tweet text
+
+--- use topic scores to weight transition matrix; not just straight probability of random surfing, but weighted for topic similarity; damping factor is also topic-specific, another result of LDA
+
+--- nice ideas for visualizing connectivity
+
+--- topics poorly described, not cohesive since only based on unsupervised classification
+
 
 \chapter{Data and Descriptive Statistics}         
 \section{Data Source}
@@ -125,7 +137,7 @@ The data for this project comes from an Amazon Redshift Database that Submittabl
 
 \section{User Accounts}
 Submittable has 4.2 million users from all time, 770K of whom made a submission in 2018. As seen in Figure \ref{fig:userCreate}, the number of new user accounts has increased exponentially, with almost twice as many new accounts in 2018 as there were in 2017. The number of users making at least one submission is also increasing steadily each year, although on a linear scale with about 100K more active submitters each year since 2013 (Figure \ref{fig:userSubmit}). On average Submittable users have made five submissions in their account lifetimes, with the number of submissions that an individual user has made ranging from one to 7.4K. Additionally, 62\% of submittable users have only made one submission since they created their account.
-\begin{figure}
+\begin{figure}[h]
     \centering
     \begin{minipage}{0.45\textwidth}
         \centering
@@ -141,15 +153,10 @@ Submittable has 4.2 million users from all time, 770K of whom made a submission 
     \end{minipage}
 \end{figure}
 \FloatBarrier
-In creating a Submittable account, each submitter has the option to provide a written description of themselves and various demographic information. Roughly 100K submitters have something written in their description field, and a brief scan shows that these are fairly descriptive, like what would be included in a cover letter or a professional bio. Only 850 of Submittable's 4.2 million users have provided information about their gender on their Submittable profile, and only 760 have provided valid birthdates. Among these users, 72\% self-reported as female, and the reported age distribution is as seen in Figure \ref{fig:userAge}, with the overwhelming majority of users between 36 and 45 years old. 1.2 million of Submittable's users have provided location information, hailing from 244 countries and territories. However, 75\% of these users are from the United States, and 91\% of them are from the top ten countries shown in Table\ref{table:userCountry}. 
+In creating a Submittable account, each submitter has the option to provide a written description of themselves and various demographic information. Roughly 100K submitters have something written in their description field, and a brief scan shows that these are fairly descriptive, like what would be included in a cover letter or a professional biography. 1.2 million of Submittable's users have provided location information, hailing from 244 countries and territories. However, 75\% of these users are from the United States, and 91\% of them are from the top ten countries shown in Table\ref{table:userCountry}. 
 
-\begin{minipage}{0.45\textwidth}
+\begin{figure}[h]
 \centering
-\includegraphics[width=0.9\textwidth]{userAge_plot.jpg}
-\captionof{figure}{Submittable Users' Ages}  
-\label{fig:userAge}
-\end{minipage}
-\hfill
 \begin{minipage}{0.45\textwidth}
      \centering
 \captionof{table}{Top Ten Submittable Users' Countries}
@@ -171,12 +178,13 @@ In creating a Submittable account, each submitter has the option to provide a wr
    \hline
 \end{tabular}
     \end{minipage}
+\end{figure}
 \FloatBarrier
 
 \section{Opportunities and Submissions}
 Submittable's software platform has hosted a total of ~130K opportunities, with a fairly steady increase of 3-5K new opportunities created every year except for 2018 (Figure \ref{fig:formYear}). This decrease in new opportunities last year can likely be attributed to the maturation of many client accounts, who are now re-using forms that they've created in previous years. This is also supported by the steady increase in the total number of submissions made each year, including last year, which has increased by ~300K every year since 2010 (Figure \ref{fig:subYear}). In its lifetime, Submittable has received a total of 12M submissions.
-\FloatBarrier
-\begin{figure}
+
+\begin{figure}[h]
     \centering
     \begin{minipage}{0.45\textwidth}
         \centering
@@ -196,7 +204,7 @@ On average, opportunities which have received at least one submission have recei
 
 Each opportunity has various textual data associated with it, including the opportunity name, a brief description of the opportunity, and any number of form field descriptions. A formfield description can be anything that the organization wants to put on their online form, from something as simple as ``Name:" to a full writing prompt or detailed submission instructions. The opportunity descriptions also vary greatly in their descriptive usefulness, some consisting of multiple paragraphs describing the opportunity guidelines in detail, and others simply stating ``Complete the form below". 
 
-\begin{figure}
+\begin{figure}[h]
     \centering
     \begin{minipage}{0.45\textwidth}
         \centering
@@ -213,7 +221,7 @@ As Submittable has grown, it has seen several generations of labeling methodolog
 Only about 40K opportunities are associated with a usecase label (ie. are hosted by an organization with a usecase label), but this makes sense since the labels only started being applied in a consistent manner in the last year, and there were roughly 40K active opportunities in 2018. The ten usecase labels with the highest number of associated opportunities are shown in Table \ref{table:topusecase}.  
 
 67K discover labels are associated with opportunities, however, since the relationship between the discover label and an opportunity is many-to-one, only 20K unique opportunities are associated with discover labels. Also, since many of the discover labels are overlapping (ie. ``book" vs. ``memoir" vs. ``stories"), I needed to map these onto broader category labels. Submittable identified grant applicants, filmmakers, photographers, and writers (with the subcategories of poetry, fiction, and non-fiction writers), so I grouped the discover labels under these categories. Table \ref{table:discovergroup} shows the number of unique forms with discover labels that fall into these categories. Since we know that only 20K unique opportunities are associated with discover labels, this table (which sums to about 40K) reiterates the many-to-one relationship between discover labels and opportunities.
-
+\begin{figure}[h]
 \begin{minipage}{0.45\textwidth}
 \centering
 \captionof{table}{Top Ten Usecase Labels}
@@ -254,17 +262,45 @@ Only about 40K opportunities are associated with a usecase label (ie. are hosted
    \hline
 \end{tabular}
     \end{minipage}
+\end{figure}
 \FloatBarrier
 
 
-\chapter{Methodology/Analysis}
+\chapter{Methodology}
+
+\section{Data Selection}
+
+- only interested in submitters who have submitted more than once in the last two years
+
+- will include both opted-in and not in the ranking to capture more "un-labeled" submitters and strengthen the network effects; then filter post-hoc to meet data privacy standards? Check with Bruce
+
+- limit to opportunities from last two years as well? May be necessary for size restrictions d/t text data
+
+\section{Topic-weighted ranking vector}
+
+- keyword lists: filmmaker, photographer, writer (fiction, poetry, nonfiction), grants
+
+- weighting for labels vs. keyword use in product descriptions vs. keyword use in user descriptions
+
+--- 1 pt for ea submission to opportunity w/ keyword match (for each keyword?); 2 pt for label match; 2 pt for user keyword match (for each keyword, added for multiple matches of same keyword?)
+
+--- should opportunities be penalized if they have multiple labels/keywords from different keyword lists?
+
+- every user gets 1 to start out with? so that they aren't precluded from results d/t failure to keyword match? allows for connection only via common submissions w/ other highly topical submitters
+
+\section{PageRank Adaptation}
+
+-Basic PageRank algorithm function
+
+- Discussion of how topic-weighted vector applied
+
+\section{How to Measure Success}
 
 - compare results to keyword match lists
 
 - if time: compare response rate (click-through or even email open) for pagerank-developed list vs. keyword match
 
-- discussion of cost balance for bigger vs. more targeted list for marketing purposes
-
+- discussion of cost balance for bigger vs. more targeted list for marketing purposes; ranked vector may be good, allow for multiple email campaigns or fudging of lists as needed?
 
 \chapter{Results}
 \chapter{Conclusion}        
