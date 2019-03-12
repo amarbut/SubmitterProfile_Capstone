@@ -6,6 +6,7 @@
 \usepackage{subcaption}
 \usepackage{placeins}
 \usepackage{appendix}
+\usepackage{apacite}
 
 \titleformat{\chapter}[display]
 {\normalfont\huge\bfseries}{}{20pt}{\Huge}   
@@ -50,25 +51,11 @@ AND THEN WRAP IT UP SOMEHOW
 \chapter{Background}
 \section{Classification algorithms}
 
---- supervised vs. unsupervised
+The task of identifying software users for targeted marketing campaigns can be seen as a combination of market segmentation and ontological user profiling. Market segmentation is the process of splitting potential and current customers/consumers into groups based on common characteristics or behaviors \cite{johnson_1971}. Ontological user profiling is the act of inferring user interests based on user behavior, attributes, and relationships \cite{middleton_shadbolt_roure_2004}. More simply put, this is a classification problem in which we need to classify users based on their potential interest in a topic (or a specific submission opportunity). 
 
---- ADA clustering?
+My first attempt at addressing this problem used a basic, unsupervised classification technique called k-means cluster analysis. In this technique, observations are mapped into an n-dimensional space, where n equals the number of variables being used to classify them. Then observations are grouped into a pre-determined number of clusters based on minimizing some sort of distance measure\cite{jain_2010}. In applying this concept to the problem at hand, I tried grouping users based on the submission opportunities to which they had submitted--the theory being that users would submit to similar submissions based on their interests (filmmakers would submit to film opportunities, writers to writing opportunities, etc.). I used a dimension reduction technique called singular value decomposition (SVD) to group the opportunities from 64K to 561, and then clustered the users into four, seven, and twelve clusters (these values were hypothesized as being a good fit for the data based on diminishing returns of minimizing the sum of squared distances within clusters). However, closer inspection of the clusters didn't signify any meaningful connection between users, likely due to the overwhelming majority of Submittable users and opportunities for writers \cite{marbut_2018}.
 
---- machine learning
-
---- SVM and other supervised techniques?
-
-\textbf{twitter user profling: https://www.aaai.org/ocs/index.php/ICWSM/ICWSM11/paper/viewFile/2886/3262}
-
---- gradient boosted decision trees
-
-\textbf{classifier comparisons: https://ieeexplore.ieee.org/abstract/document/5170933}
-
---- Naive bayesian, Instance-based learner, classification and regression tree, Naive Bayesian tree
-
-\textbf{twitter user classification: https://dl.acm.org/citation.cfm?id=1871993}
-
---- stacked-SVM
+Other types of algorithms traditionally used for user classification include Naive Bayesian techniques, instance-based learner techniques,  and various types of decision trees \cite{cufoglu_lohi_madani_2009}. A common area of research in this area is the profiling twitter users based on user behavior, network structure, and language used on the profile and in tweets, which has been done through gradient boosted decision trees \cite{pennacchiotti_popescu_2011} and by application of a stacked support vector machine \cite{rao_yarowsky_shreevats_gupta_2010}. However, all of these techniques share a common flaw in the context of Submittable's user classification, which is that they classify observations into one specific category, while submitters may fall into multiple groups. While there are fuzzy classification algorithms that will calculate the probability that an observation falls into each of many categories, and methods like support vector machines can be used to identify membership in multiple groups individually, other issues with the data (including incomplete and fuzzy categorization of submission opportunities) caused me to look for alternative approaches.
 
 \section{Google PageRank}
 
@@ -290,9 +277,11 @@ Only about 40K opportunities are associated with a usecase label (ie. are hosted
 
 \section{PageRank Adaptation}
 
--Basic PageRank algorithm function
+- Basic PageRank algorithm function
 
 - Discussion of how topic-weighted vector applied
+
+--- weight transition matrix by product topicality, weight teleportation factor by submitter topicality
 
 \section{How to Measure Success}
 
@@ -565,8 +554,9 @@ Only about 40K opportunities are associated with a usecase label (ie. are hosted
 
     \end{minipage}
 
-\begin{thebibliography}{9}
-  % type bibliography here
-\end{thebibliography}
+
+\bibliography{biblio}
+\bibliographystyle{apacite}
+
 
 \end{document}
