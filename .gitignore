@@ -1,3 +1,3 @@
 #ignore all saved python objects or tsvs
-.pkl
-.txt
+*.pkl
+*.txt
