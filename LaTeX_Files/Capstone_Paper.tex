@@ -48,76 +48,6 @@ In this project, we will explore using an adaptation of the PageRank algorithm t
 
 AND THEN WRAP IT UP SOMEHOW
 
-\chapter{Background}
-\section{Classification algorithms}
-
-The task of identifying software users for targeted marketing campaigns can be seen as a combination of market segmentation and ontological user profiling. Market segmentation is the process of splitting potential and current customers/consumers into groups based on common characteristics or behaviors \cite{johnson_1971}. Ontological user profiling is the act of inferring user interests based on user behavior, attributes, and relationships \cite{middleton_shadbolt_roure_2004}. More simply put, this is a classification problem in which we need to classify users based on their potential interest in a topic (or a specific submission opportunity). 
-
-My first attempt at addressing this problem used a basic, unsupervised classification technique called k-means cluster analysis. In this technique, observations are mapped into an n-dimensional space, where n equals the number of variables being used to classify them. Then observations are grouped into a pre-determined number of clusters based on minimizing some sort of distance measure\cite{jain_2010}. In applying this concept to the problem at hand, I tried grouping users based on the submission opportunities to which they had submitted--the theory being that users would submit to similar submissions based on their interests (filmmakers would submit to film opportunities, writers to writing opportunities, etc.). I used a dimension reduction technique called singular value decomposition (SVD) to group the opportunities from 64K to 561, and then clustered the users into four, seven, and twelve clusters (these values were hypothesized as being a good fit for the data based on diminishing returns of minimizing the sum of squared distances within clusters). However, closer inspection of the clusters didn't signify any meaningful connection between users, likely due to the overwhelming majority of Submittable users and opportunities for writers \cite{marbut_2018}.
-
-Other types of algorithms traditionally used for user classification include Naive Bayesian techniques, instance-based learner techniques,  and various types of decision trees \cite{cufoglu_lohi_madani_2009}. A common area of research in this area is the profiling twitter users based on user behavior, network structure, and language used on the profile and in tweets, which has been done through gradient boosted decision trees \cite{pennacchiotti_popescu_2011} and by application of a stacked support vector machine \cite{rao_yarowsky_shreevats_gupta_2010}. However, all of these techniques share a common flaw in the context of Submittable's user classification, which is that they classify observations into one specific category, while submitters may fall into multiple groups. While there are fuzzy classification algorithms that will calculate the probability that an observation falls into each of many categories, and methods like support vector machines can be used to identify membership in multiple groups individually, other issues with the data (including incomplete and fuzzy categorization of submission opportunities) caused me to look for alternative approaches.
-
-\section{Google PageRank}
-
-\textbf{twitter community identification: http://snap.stanford.edu/networks2013/papers/netnips2013\_submission\_3.pdf}
-
---- used pagerank to identify central communities and community members in twitter network
-
-\textbf{Multilabel user classification using the community structure of online networks: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0173347}
-
---- inferring user interests based on sparsely annotated user profiles
-
---- use pagerank to identify most important community memberships for each user, then apply to graph embeddings
-
-\textbf{Personalized PageRank Estimation and Search: https://arxiv.org/abs/1507.05999}
-
---- bidirectional personalized pagerank; meant to increase speed of search, but may be useful in bidirectional network (ie. submitters w/ common opportunities)
-
-\textbf{Identifying Key Users in Online Social Networks: https://epub.uni-regensburg.de/25914/1/Identifying\_Key\_Users\_in\_Online\_Social\_Networks\_1.pdf}
-
---- importance of connectivity in marketing basedd on social networks
-
---- concept of eigenvector centrality to acknowledge inequality of importance in network nodes
-
---- uses weighted vector to apply bias for high-low activity users; \textbf{ bidirectional activity weights; address undirected connectivity}
-
---- used dampening = 0.85; supported that higher d does not drastically change order of high ranking results, but takes much longer
-
-\textbf{Edge-Weighted Personalized PageRank: http://wenleix.github.io/paper/edgeppr.pdf}
-
---- node vs. edge weights; ie importance of submitter vs importance of relationship between submitters; in our context, node weight could be seen as topicality of submitter (how many labeled opportunities submitted to, keywords in user description), edge weight could be seen as topicality of opportunity that submitters have in common (\# of relevent labels, keywords in opportunity description)
-
---- focuses on providing quick(er) solution for applying edge weights to pagerank
-
---- use reduced model of edge-weighted pagerank to decrease computation time
-
-\textbf{Topic-Sensitive PageRank:http://www-cs-students.stanford.edu/~taherh/papers/topic-sensitive-pagerank.pdf}
-
---- use pre-computed topic-specific pagerank vectors to rank search results; avoids highly connected nodes from rising to top when not topical
-
---- pagerank matrix must be irreducible (highly connected, limited clustering?) and aperiodic (no sinks, solved by damping factor)
-
---- topic bias added @ damping factor: $\alpha \vec{p}$ where $\alpha = P(teleportation)$ and $\vec{p} = 1/N$ or $\vec{p} =$ biased rank vector
-
---- power iteration looks like: $\vec{Rank} = (1- \alpha )M * \vec{Rank} + \alpha \vec{p}$; so that biased rank is added at each iteration? how does it ever reach convergence? Wouldn't there always be difference of damping factor?
-
---- reiterates that value of $\alpha$ does not have significant effect on ordering of results; this study used $\alpha = 0.25$
-
-\textbf{TwitterRank: https://ink.library.smu.edu.sg/cgi/viewcontent.cgi?article=1503\&context=sis\_research}
-
---- topic-senstive ranking of influential tweeters
-
---- defines social network homophily: social networks are homogeneous with regard to manny sociodemographic, behavioral, and inntrapersonal characteristics; ie. "friends" follow each other b/c they have similar interests
-
---- use LDA to give topic-scores for each tweeter based on aggregate of tweet text
-
---- use topic scores to weight transition matrix; not just straight probability of random surfing, but weighted for topic similarity; damping factor is also topic-specific, another result of LDA
-
---- nice ideas for visualizing connectivity
-
---- topics poorly described, not cohesive since only based on unsupervised classification
-
-
 \chapter{Data and Descriptive Statistics}         
 \section{Data Source}
 The data for this project comes from an Amazon Redshift Database that Submittable has set up to perform basic analytic queries about their clients, users, and product usage. Due to the scope of this research, the data used is centralized around Submittable's users, including information that they've explicitly provided on their Submittable profile, as well as information about the various submissions that they've made. In accordance with Submittable's privacy policy, no information that could be used to identify an individual user was included in the data for this project.
@@ -251,6 +181,69 @@ Only about 40K opportunities are associated with a usecase label (ie. are hosted
     \end{minipage}
 \end{figure}
 \FloatBarrier
+
+\chapter{Background}
+\section{Classification algorithms}
+
+The task of identifying software users for targeted marketing campaigns can be seen as a combination of market segmentation and ontological user profiling. Market segmentation is the process of splitting potential and current customers/consumers into groups based on common characteristics or behaviors \cite{johnson_1971}. Ontological user profiling is the act of inferring user interests based on user behaviors, attributes, and relationships \cite{middleton_shadbolt_roure_2004}. More simply put, this is a classification problem in which we need to identify users based on their potential interest in a topic (or a specific submission opportunity) without having specific information that indicates their interest in said topic. 
+
+My first attempt at addressing this problem used a basic, unsupervised classification technique called k-means cluster analysis. In this technique, observations are mapped into an n-dimensional space, where n equals the number of variables being used to classify them. Then observations are grouped into a pre-determined number of clusters based on minimizing some sort of distance measure\cite{jain_2010}. In applying this concept to the problem at hand, I tried grouping users based on the submission opportunities to which they had submitted--the theory being that users would submit to similar submissions based on their interests (filmmakers would submit to film opportunities, writers to writing opportunities, etc.). I used a dimension reduction technique called singular value decomposition (SVD) to group the opportunities from 64K to 561, and then clustered the users into four, seven, and twelve clusters (these values were hypothesized as being a good fit for the data based on diminishing returns of minimizing the sum of squared distances within clusters). However, closer inspection of the clusters didn't signify any meaningful connection between users, likely due to the overwhelming majority of Submittable users and opportunities for writers \cite{marbut_2018}.
+
+Other types of algorithms traditionally used for user classification include Naive Bayesian techniques, instance-based learner techniques,  and various types of decision trees \cite{cufoglu_lohi_madani_2009}. A common area of research in this area is the profiling twitter users based on user behavior, network structure, and language used on the profile and in tweets, which has been done through gradient boosted decision trees \cite{pennacchiotti_popescu_2011} and by application of a stacked support vector machine \cite{rao_yarowsky_shreevats_gupta_2010}. However, all of these techniques share a common flaw in the context of Submittable's user classification, which is that they classify observations into one specific category, while submitters may fall into multiple groups. While there are fuzzy classification algorithms that will calculate the probability that an observation falls into each of many categories, and methods like support vector machines can be used to identify membership in multiple groups individually, other issues with the data (including incomplete and fuzzy categorization of submission opportunities) caused me to look for alternative approaches.
+
+\section{Google PageRank}
+
+With the ultimate goal of creating a list of users who were likely to be interested in a specific opportunity, I knew that I could create a ``topic score" for each user, based on the keyword matching method that we're currently using to create these lists. This topic score would consist of weighted points for keyword matches in different fields in the database; for example, a user might get one point every time a keyword is used in the description of an opportunity to which they've submitted, two points if the keyword is used in the name of the opportunity, and three points for every time it occurs in their user profile text. Using a raw score like this would obviously favor users who have made a lot of submissions, have lengthy profile descriptions, or who happen to submit to opportunities with a lot of text in their descriptions. There are similarity measures which can control for this and standardize the raw scores based on sample size and other parameters, however this topic-scoring method still relies entirely on the presence or absence of keywords. If a film opportunity is named only with the name of a contest (eg. ``2018 Company X Awards") and has a minimal description (eg. ``Please complete the form below and submit your work by June 1. Contact Jane Doe with any questions at 123-456-7890"), it will not contribute to a user's film topic score at all. In addition, since we know that 62\% of users have only submitted to one opportunity, if that one opportunity happens to be the ``2018 Company X Awards", the user will not be included in the list of filmmakers even though they should be.
+
+To control for this issue, I wanted to find a way to adjust these user topic scores based on similarity to other users. If user A had only ever submitted to the ``2018 Company X Awards", but user B had submitted to this opportunity and a dozen other film opportunities with high topic scores, user A's score should increase based on this connection to user B. This concept of one user's score affecting the score of other connected users is very similar to the theory behind the Google PageRank algorithm, except with users instead of webpages. In PageRank, websites are ranked based on the number of other pages that link to them, but also based on the rank of the pages linking to them \cite{page_brin_motwani_winograd_1999}. This self-referrent ranking system is not an exact match for Submittable's usecase, but the idea that one user's topic score (or topic rank) depends at least in part on the topic score of similar users does solve the problem of missing users as discussed above. Also, applying the PageRank algorithm in this context would result in a ranked list of all users based on their interest in a specific topic, which would allow for more dynamic marketing outreach (users who rank very highly might receive more direct outreach than users with a mid-range interest score), and addresses the fuzzy classification issues discussed in the previous section.
+
+Similar uses of the PageRank algorithm include the identification of high-impact social network users for marketing campaigns, creation of a topic-specific rank for websites, and identification of highly influential Twitter users on a specific topic. \citeA{heidemann_klier_probst_2012} explore the application of PageRank to Facebook users based on their network connectivity and level of activity. They show that this algorithm can be used to identify key users for viral marketing campaigns that rely on user activity (posting, re-posting, liking, etc.) to reach their target audience. \citeA{haveliwala_2002}  discusses the addition of a topic-bias to the original PageRank algorithm, so that websites with high topicality are favored when calculating their rank based on external links. Finally, \citeA{weng_lim_jiang_he_2010} use PageRank to rank Twitter users based on their influence in a certain area of interest. This approach combines user connectivity and activity with a user-specific topic score to feed the PageRank algorithm and create a ranked list of Twitter users for a given topic.
+
+
+\textbf{Identifying Key Users in Online Social Networks: https://epub.uni-regensburg.de/25914/1/Identifying\_Key\_Users\_in\_Online\_Social\_Networks\_1.pdf}
+
+\cite{heidemann_klier_probst_2012}
+--- importance of connectivity in marketing basedd on social networks
+
+--- concept of eigenvector centrality to acknowledge inequality of importance in network nodes
+
+--- uses weighted vector to apply bias for high-low activity users; \textbf{ bidirectional activity weights; address undirected connectivity}
+
+--- used dampening = 0.85; supported that higher d does not drastically change order of high ranking results, but takes much longer
+
+\textbf{Edge-Weighted Personalized PageRank: http://wenleix.github.io/paper/edgeppr.pdf}
+
+--- node vs. edge weights; ie importance of submitter vs importance of relationship between submitters; in our context, node weight could be seen as topicality of submitter (how many labeled opportunities submitted to, keywords in user description), edge weight could be seen as topicality of opportunity that submitters have in common (\# of relevent labels, keywords in opportunity description)
+
+--- focuses on providing quick(er) solution for applying edge weights to pagerank
+
+--- use reduced model of edge-weighted pagerank to decrease computation time
+
+\textbf{Topic-Sensitive PageRank:http://www-cs-students.stanford.edu/~taherh/papers/topic-sensitive-pagerank.pdf}
+
+--- use pre-computed topic-specific pagerank vectors to rank search results; avoids highly connected nodes from rising to top when not topical
+
+--- pagerank matrix must be irreducible (highly connected, limited clustering?) and aperiodic (no sinks, solved by damping factor)
+
+--- topic bias added @ damping factor: $\alpha \vec{p}$ where $\alpha = P(teleportation)$ and $\vec{p} = 1/N$ or $\vec{p} =$ biased rank vector
+
+--- power iteration looks like: $\vec{Rank} = (1- \alpha )M * \vec{Rank} + \alpha \vec{p}$; so that biased rank is added at each iteration? how does it ever reach convergence? Wouldn't there always be difference of damping factor?
+
+--- reiterates that value of $\alpha$ does not have significant effect on ordering of results; this study used $\alpha = 0.25$
+
+\textbf{TwitterRank: https://ink.library.smu.edu.sg/cgi/viewcontent.cgi?article=1503\&context=sis\_research}
+
+--- topic-senstive ranking of influential tweeters
+
+--- defines social network homophily: social networks are homogeneous with regard to manny sociodemographic, behavioral, and inntrapersonal characteristics; ie. "friends" follow each other b/c they have similar interests
+
+--- use LDA to give topic-scores for each tweeter based on aggregate of tweet text
+
+--- use topic scores to weight transition matrix; not just straight probability of random surfing, but weighted for topic similarity; damping factor is also topic-specific, another result of LDA
+
+--- nice ideas for visualizing connectivity
+
+--- topics poorly described, not cohesive since only based on unsupervised classification
 
 
 \chapter{Methodology}
