@@ -21,23 +21,26 @@ userRank <- userRank%>%
 
 userRank <- userRank%>%
   left_join(rawScore, by = c("user"="userid"))
-         
+
+#top ranked user does not appear to be particularly interested in film via admin :-\
     
 colnames(userRank) <- c("userid", "newRank", "oldlist", "userScore", "descScore", "nameScore", "rawScore", "rawRank")     
 
-cor.test(log(userRank$newRank), log(userRank$rawScore))
-cor.test(log(userRank$newRank), log(userRank$rawRank))
+cor.test(userRank$newRank, userRank$rawScore)
+cor.test(userRank$newRank, userRank$rawRank)
 
 userRank <- userRank%>%
   mutate(newOrder = c(1:length(userRank$newRank)))
 
-cor.test(log(userRank$newOrder), log(userRank$rawRank))
+cor.test(userRank$newOrder, userRank$rawRank)
+#no correlations between new rank/order and old score/order >0.15; log transformation does not affect
+
 
 userRank%>%
   ggplot(aes(x = newOrder, y = rawRank))+
-  geom_point()
+  geom_point() 
 
 userRank%>%
   filter(newOrder<=100)%>%
   group_by(oldlist)%>%
-  count()
+  count() #only 27 out of the top 100 ranked users were on the original list

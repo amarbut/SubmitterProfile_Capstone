@@ -30,7 +30,7 @@ activeUserq = """with subCount as(
                     select userid, count(distinct submissionid)
                     from submittable_db.submission
                     where 1=1
-                    and extract(year from createdon) >=2017
+                    and extract(year from createdon) >=2018
                     group by 1)
                  select distinct s.userid, s.productid 
                  from submittable_db.submission s
@@ -39,14 +39,17 @@ activeUserq = """with subCount as(
                  join submittable_db.product p on s.productid = p.productid
                  join submittable_db.publisher pub on p.publisherid = pub.publisherid
                  where 1=1
-                 and (sc.count >1 or u.didconsenttorecommendations is True)
+                 and (sc.count >1 or u.didconsenttomailinglist is True)
                  and pub.accounttypeid not in (11,16,64)"""
 
 cur.execute(activeUserq)
 activeUsers = np.array(cur.fetchall())
 
 activeUserDistinct = list(set(activeUsers[:,0])) 
-sampleUsers =  set(random.sample(activeUserDistinct, 500))             
+sampleUsers =  set(random.sample(activeUserDistinct, 5000)) 
+#%%   
+pickle.dump(sampleUsers, open("sample5000.pkl", "wb"))
+sampleUsers = pickle.load(open("sample5000.pkl", "rb"))         
 #%%
 #create lists of keywords
 
@@ -244,7 +247,7 @@ for user in filmUserDict:
     filmUserDf = pd.concat([filmUserDf, row], ignore_index=True)
 filmUserDf = filmUserDf.set_index('user')
 #%%
-#create dictionary for ea. active users of all productids submitted to
+#create dictionary for ea. active users in sample of all productids submitted to
 submitDict = defaultdict(list)
 
 for row in activeUsers:
@@ -267,7 +270,8 @@ for idx, user1 in enumerate(submitDict):
                     common.add(form)
             commonDict[(user1,user2)] = common
     checked.add(user1)
-
+#%%
+commonDict = pickle.load(open("commonDict_sample5000.pkl", "rb"))
 #%%   
 #create product topic score for each user pair and add to df
 
@@ -406,28 +410,50 @@ from users
 """
 
 cur.execute(oldUserListq)
-oldUserList = np.array(cur.fetchall)# retrieved 0 users
+oldUserList = np.array(cur.fetchall())# retrieved 106 users
+
+with open("smallOldUserList.txt", "w", encoding = "utf-8") as file:
+    file.write("userid"+"\n")
+    for user in list(oldUserList[:,0]):
+        file.write(user+"\n")
 
 #%%
-#try again, still with keyword matching but with methods used in this project
+#try again, still with keyword matching but with raw scores for each user
 
-modOldUserListq = """
+oldScoreListq = """
 with film as(
-select p.productid, regexp_count(lower(p.description),'"""+ filmmakerKeys+"') as descCount, regexp_count(lower(p.name),'"+ filmmakerKeys+"""') as nameCount
+select distinct p.productid, regexp_count(lower(p.description),'"""+ filmmakerKeys+"') as descCount, regexp_count(lower(p.name),'"+ filmmakerKeys+"""') as nameCount
 from submittable_db.product p
 join submittable_db.publisher pub on p.publisherid = pub.publisherid
 where descCount > 0 or nameCount >0),
 users as(
-select u.userid, regexp_count(lower(u.description), '"""+filmmakerKeys+"""') as numKeys
+select distinct u.userid, regexp_count(lower(u.description), '"""+filmmakerKeys+"""') as numKeys
 from submittable_db.smmuser u
 join submittable_db.submission s on u.userid = s.userid
 where 1=1
 and(numKeys != 0
     or s.productid in (select productid from film))
-and u.userid in ("""+str(sampleUsers).replace("{","").replace("}", "") +"""))
-select userid
-from users
+and u.userid in ("""+str(sampleUsers).replace("{","").replace("}", "") +""")),
+formScores as(
+select distinct u.userid, sum(f.descCount) as totalDesc, sum(f.nameCount) as totalName
+from users u
+join submittable_db.submission s on u.userid = s.userid
+join film f on s.productid = f.productid
+group by 1)
+select distinct u.userid, u.numKeys, fs.totalDesc, fs.totalName
+from users u
+join formScores fs on u.userid = fs.userid
+
 """
 
-cur.execute(modOldUserListq)
-modOldUserList = np.array(cur.fetchall)
+cur.execute(oldScoreListq)
+oldScoreList = np.array(cur.fetchall())#retrieved 116 users
+
+with open("smallOldscoreList.txt", "w", encoding = "utf-8") as file:
+    file.write("\t".join(["userid", "userScore", "formDescScore", "formNameScore"])+"\n")
+    for idx, user in enumerate(list(oldScoreList[:,0])):
+        userScore = oldScoreList[idx,1]
+        formDescScore = oldScoreList[idx,2]
+        formNameScore = oldScoreList[idx,3]
+        row = "\t".join([user, str(userScore), str(formDescScore), str(formNameScore)])
+        file.write(row+"\n")
