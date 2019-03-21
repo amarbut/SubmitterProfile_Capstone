@@ -1,3 +1,4 @@
 #ignore all saved python objects or tsvs
 *.pkl
 *.txt
+sample5000dfs/
