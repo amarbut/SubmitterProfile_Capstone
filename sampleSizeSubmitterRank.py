@@ -276,26 +276,26 @@ commonDict = pickle.load(open("commonDict_sample5000.pkl", "rb"))
 #create product topic score for each user pair and add to df
 
 commonDf = pd.DataFrame(columns = ['user1', 'user2', 'topicScore'])
-
+counter = 1
 for idx, pair in enumerate(commonDict):
     print("Scoring pair", idx, "out of", len(commonDict))
     user1, user2 = pair
     score = 0
     for form in commonDict[pair]:
         if form in filmProductSet:
-            score += filmProductDict[form]
+            score += 1 + filmProductDict[form]
         else:
             score += 1
     row = pd.DataFrame([[user1, user2, score]], columns = ['user1', 'user2', 'topicScore'])
     commonDf = pd.concat([commonDf, row], ignore_index = True)
     row2 = pd.DataFrame([[user2, user1, score]], columns = ['user1', 'user2', 'topicScore'])
     commonDf = pd.concat([commonDf, row2], ignore_index = True)
-
-commonDf = commonDf.drop_duplicates()
-
-with open("scoredf.pkl", "wb") as pf:
-    pickle.dump(commonDf, pf)
-    
+    if idx % 100000 == 0:
+        commonDf = commonDf.drop_duplicates()
+        with open("sample5000dfs/scoredf_sample5000_"+str(counter)+".pkl", "wb") as pf:
+            pickle.dump(commonDf, pf)
+        commonDf = pd.DataFrame(columns = ['user1', 'user2', 'topicScore'])
+        counter += 1
 
 #%%
 #create square matrix with productScores as values

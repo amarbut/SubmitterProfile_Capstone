@@ -187,7 +187,7 @@ def createUserSimilarity(activeUsers, userSet, formSet, formDict):
         score = 0
         for form in commonDict[pair]:
             if form in formSet:
-                score += formDict[form]
+                score += 1 + formDict[form]
             else:
                 score += 1
         row = pd.DataFrame([[user1, user2, score]], columns = ['user1', 'user2', 'topicScore'])
