@@ -19,7 +19,9 @@
 
 \begin{document}
 
-\title{Something about Submitter Segmentation}   % type title between braces
+\title{%
+Topic-Sensitive Submitter Ranking:\\[0.3em]
+\large Application of the PageRank Algorithm for Inference of Submitter Interests}   % type title between braces
 \author{Anna Marbut}         % type author(s) between braces
 \date{May 2019}    % type date between braces
 \maketitle
@@ -199,82 +201,107 @@ To control for this issue, I wanted to find a way to adjust these user topic sco
 
 Similar uses of the PageRank algorithm include the identification of high-impact social network users for marketing campaigns, creation of a topic-specific rank for websites, and identification of highly influential Twitter users on a specific topic. \citeA{heidemann_klier_probst_2012} explore the application of PageRank to Facebook users based on their network connectivity and level of activity. They show that this algorithm can be used to identify key users for viral marketing campaigns that rely on user activity (posting, re-posting, liking, etc.) to reach their target audience. \citeA{haveliwala_2002}  discusses the addition of a topic-bias to the original PageRank algorithm, so that websites with high topicality are favored when calculating their rank based on external links. Finally, \citeA{weng_lim_jiang_he_2010} use PageRank to rank Twitter users based on their influence in a certain area of interest. This approach combines user connectivity and activity with a user-specific topic score to feed the PageRank algorithm and create a ranked list of Twitter users for a given topic.
 
-
-\textbf{Identifying Key Users in Online Social Networks: https://epub.uni-regensburg.de/25914/1/Identifying\_Key\_Users\_in\_Online\_Social\_Networks\_1.pdf}
-
-\cite{heidemann_klier_probst_2012}
---- importance of connectivity in marketing basedd on social networks
-
---- concept of eigenvector centrality to acknowledge inequality of importance in network nodes
-
---- uses weighted vector to apply bias for high-low activity users; \textbf{ bidirectional activity weights; address undirected connectivity}
-
---- used dampening = 0.85; supported that higher d does not drastically change order of high ranking results, but takes much longer
-
-\textbf{Edge-Weighted Personalized PageRank: http://wenleix.github.io/paper/edgeppr.pdf}
-
---- node vs. edge weights; ie importance of submitter vs importance of relationship between submitters; in our context, node weight could be seen as topicality of submitter (how many labeled opportunities submitted to, keywords in user description), edge weight could be seen as topicality of opportunity that submitters have in common (\# of relevent labels, keywords in opportunity description)
-
---- focuses on providing quick(er) solution for applying edge weights to pagerank
-
---- use reduced model of edge-weighted pagerank to decrease computation time
-
-\textbf{Topic-Sensitive PageRank:http://www-cs-students.stanford.edu/~taherh/papers/topic-sensitive-pagerank.pdf}
-
---- use pre-computed topic-specific pagerank vectors to rank search results; avoids highly connected nodes from rising to top when not topical
-
---- pagerank matrix must be irreducible (highly connected, limited clustering?) and aperiodic (no sinks, solved by damping factor)
-
---- topic bias added @ damping factor: $\alpha \vec{p}$ where $\alpha = P(teleportation)$ and $\vec{p} = 1/N$ or $\vec{p} =$ biased rank vector
-
---- power iteration looks like: $\vec{Rank} = (1- \alpha )M * \vec{Rank} + \alpha \vec{p}$; so that biased rank is added at each iteration? how does it ever reach convergence? Wouldn't there always be difference of damping factor?
-
---- reiterates that value of $\alpha$ does not have significant effect on ordering of results; this study used $\alpha = 0.25$
-
-\textbf{TwitterRank: https://ink.library.smu.edu.sg/cgi/viewcontent.cgi?article=1503\&context=sis\_research}
-
---- topic-senstive ranking of influential tweeters
-
---- defines social network homophily: social networks are homogeneous with regard to manny sociodemographic, behavioral, and inntrapersonal characteristics; ie. "friends" follow each other b/c they have similar interests
-
---- use LDA to give topic-scores for each tweeter based on aggregate of tweet text
-
---- use topic scores to weight transition matrix; not just straight probability of random surfing, but weighted for topic similarity; damping factor is also topic-specific, another result of LDA
-
---- nice ideas for visualizing connectivity
-
---- topics poorly described, not cohesive since only based on unsupervised classification
+The methods used in this project, as outlined below, will use aspects of all three of these studies to infer the strength submitter interests based on the topicality of the opportunities to which they've submitted and their profile descriptions, as well as their similarity to other submitters.
 
 
 \chapter{Methodology}
 
 \section{Data Selection}
 
-- only interested in submitters who have submitted more than once in the last two years
+In order to reach users who are most likely to be interested in submitting to a new opportunity, Submittable's marketing department is only interested in users who have made more than one submission within the last calendar year or who have specifically opted in to receiving e-mails about new opportunities. This limits the list of potential submitters to just over 400K, which is much more manageable than the entire user base of 2.4 million. However, due to the nature of these methods, even including only 400K users in the dataset requires 160 billion similarity calculations, which is beyond the capabilities of the hardware I currently use. For this reason, a small random sample of 5000 submitters will be used as a proof-of-concept in this project, with plans to investigate distributed computing solutions for full-size implementation in the future.
 
-- will include both opted-in and not in the ranking to capture more "un-labeled" submitters and strengthen the network effects; then filter post-hoc to meet data privacy standards? Check with Bruce
+\section{Basic PageRank}
 
-- limit to opportunities from last two years as well? May be necessary for size restrictions d/t text data
+The PageRank algorithm, as described above, is used to rank websites based on the number and quality of other websites that link to it. The math involved in computing this rank is most easily explained using the "random surfer" analogy. Given a small network of websites, such as that seen in Figure\ref{fig:demoNet} where each letter represents a website and each arrow a link from that site to another site, a web surfer in this network has a certain probability of moving from site to site only using these links, as seen in Figure \ref{fig:demoProb}. 
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{Marbut_DemoNetwork.png} % first figure itself
+        \caption{Small Network of Websites: Each letter represents one website, and each arrow represents a link from one website to another.}
+	  \label{fig:demoNet}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{Marbut_DemoMatrix.png} % second figure itself
+        \caption{Random Surfing Probabilities: Each column represents the probability of navigating from the column page to all other pages in the network by only clicking on links.}
+	  \label{fig:demoProb}
+    \end{minipage}
+\end{figure}
+\FloatBarrier
 
-\section{Topic-weighted ranking vector}
+In order to include the possibility of the web surfer directly navigating to any page in the network without clicking on a link (by typing in the address in the navigation bar, for example), a teleportation or damping factor is added to this matrix of probabilities. This teleportation factor applies an arbitrarily-assigned probability, $d$, of navigating the network via links and a $1-d$ probability of directly navigating to any other page in the network to the original matrix. A common value for $d$ is 0.85, which implies that a user has an 85\% chance of navigating to their next page via a link, and a 15\% chance of navigating to another page directly. If $L$ is our original probability matrix from Figure\ref{fig:demoNet}, and $t$ is an $n$ x $n$ matrix of $\frac{(1-d)}{n}$, this transformation can be expressed by equation \ref{teleport}, resulting in the new probability matrix $M$ seen in Figure \ref{fig:demoDamp}.
+\begin{equation}
+\label{teleport}
+M=d*L+t
+\end{equation}
 
-- keyword lists: filmmaker, photographer, writer (fiction, poetry, nonfiction), grants
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.9\textwidth}
+        \centering
+        \includegraphics[width=0.45\textwidth]{Marbut_DemoWDamping.png} % first figure itself
+        \caption{Transition Matrix with Damping Factor: Each page's navigation probabilities have been transformed such that there is now an 85\% chance of a user navigating via a link and a 15\% chance of direct navigation to another website (such as by use of the navigation bar).}
+	  \label{fig:demoDamp}
+    \end{minipage}
+ \end{figure}
+\FloatBarrier 
 
-- weighting for labels vs. keyword use in product descriptions vs. keyword use in user descriptions
-
---- 1 pt for ea submission to opportunity w/ keyword match (for each keyword?); 2 pt for label match; 2 pt for user keyword match (for each keyword, added for multiple matches of same keyword?)
-
---- should opportunities be penalized if they have multiple labels/keywords from different keyword lists?
-
-- every user gets 1 to start out with? so that they aren't precluded from results d/t failure to keyword match? allows for connection only via common submissions w/ other highly topical submitters
+The way that this transition matrix $M$ has been constructed, such that it is irreducible and aperiodic, allows the use of power iteration to create a unique rank vector for all pages in the network. In other words, $M$ can be iteratively multiplied by the rank vector $r$ such that $r$ will eventually converge to a specific eigenvector with an eigenvalue of one, as expressed in equation \ref{powerrank}. Due to this iterative process, the final rank of any page will be determined by both the total number and rank of pages linking to it \cite{haveliwala_2002}.
+\begin{equation}
+\label{powerrank}
+r^{i+1}=M*r^{i}
+\end{equation}
 
 \section{PageRank Adaptation}
 
-- Basic PageRank algorithm function
+In adapting the PageRank algorithm for the purposes of this project, we will be considering submitters instead of websites, and using the number of opportunities to which both of a pair of users has submitted in place of links between pages. Additionally, a topic-bias will be included for each user and each common submission to create topic-specific ranks for each user in the dataset.
 
-- Discussion of how topic-weighted vector applied
+\citeA{haveliwala_2002} add topic-bias to their results by creating a topic-specific personalization vector $\vec{p}$ and weighting the damping factor by this vector on each iteration until convergence is reached, as expressed by equation \ref{topicrank}. The addition of this topic bias in the damping factor is essentially weighting the probability of random direct navigation by how topical each page is, increasing the probability of navigation for pages that are highly specific to a given topic. 
+\begin{equation}
+\label{topicrank}
+ r^{i+1}=d*M*r^{i}+(1-d)*\vec{p}
+\end{equation}
 
---- weight transition matrix by product topicality, weight teleportation factor by submitter topicality
+\citeA{weng_lim_jiang_he_2010} instead create a topic-weighted transition matrix $M$, such that the connection between two Twitter users is determined by the proportion of followers that they have in common, weighted by a topic score for each of those users. In this way, the topic-specific connection between two users is stronger (larger in value) if the followers that they have in common are highly topical. This also allows for the topic-specific rank of Twitter users who may not have a high topic score themselves to be pulled up by a strong topical connection to other highly ranked users.
+
+Here, we will use both of these methods to apply a topic-specific bias to the PageRank algorithm. A personalization vector will be used to weight the damping factor based on a user-specific topic score compiled from each submitter's profile description. In addition, the transition matrix will be adjusted such that the number of opportunities that each pair of submitters has in common is weighted by a topic score for each opportunity based on the presence of topic-specific tags and keywords in its name or description.
+
+\section{Topic Scores and Matrix Formation}
+
+Although the goal of this project is to move away from keyword matching as the basis for creating Submittable's marketing campaign e-mail lists, a lack of consistent and exhaustive labeling in the data means that we still need to rely on a list of topic-specific keywords in order to create topic scores for users and opportunities. However, as discussed above, using these topic scores in combination with the PageRank algorithm will allow for a richer topic-specific ranking of users including some who would not necessarily have been identified by keyword matching alone.
+
+A personalization vector $\vec{p}$ for each topic is calculated based on the number of keyword matches present in a submitter's profile description. Each user's topic score, $p_{i}$, starts at one and is incremented by one point for every instance of a word from the topic-specific keyword list in their profile description. After all topic scores are calculated, each user's score is divided by the sum of all the user topic scores such that the vector of scores all sum to one, as seen in equation \ref{vecp_prime}.
+\begin{equation}
+\label{vecp_prime}
+p_{i}'=\frac{p_i}{\sum{\vec{p}}}
+\end{equation}
+
+Each opportunity's topic score, $o_k$, is calculated by a combination of matching keywords in the form description or name, and matching usecase or discover tags. This score starts at one and is incremented by one point for every instance of a word from the topic-specific keyword list in the opportunity's description, by two for every instance in its name, and by two for each topic-specific usecase or discover tag. The initial transition matrix, $L$ is then formed with every user on both axes, with the value for every pair of users being equal to the sum of the topic scores for opportunities to which they both submitted. This value is then divided by the column sum for each user, such that each column sums to one as expressed by equations \ref{pairscore} and \ref{Lmatrix}.
+\begin{equation}
+\label{pairscore}
+L_{i,j}=\sum{o_{k,i}\cup o_{k,j}}
+\end{equation}
+\begin{equation}
+\label{Lmatrix}
+L_{i,j}' =\frac{L_{i,j}}{\sum{L_i}}
+\end{equation}
+
+A damping factor, $d = 0.85$, was then added to the transition matrix $L$ in combination with the topic-specific personalization vector $\vec{p}$ by multiplying $\vec{p}$ by an $n$ x $n$ matrix of ones, $J$, such that each column equals $\vec{p}$ (equations \ref{Pmatrix} and \ref{Mmatrix}). This method is more similar to the original PageRank algorithm than that used by \citeA{haveliwala_2002} in which the personalization vector is added at each iteration. This choice was made for the sake of simplicity for this project, but we will likely compare both methods in the future to determine which performs better in this context.
+\begin{equation}
+\label{Pmatrix}
+P=((1-d)*\vec{p}*J)^{T}
+\end{equation}
+\begin{equation}
+\label{Mmatrix}
+M=d*L+P
+\end{equation}
+
+Finally, the transition matrix $M$ is multiplied by a rank vector, $\vec{r}$ of length n with all starting values equal to $1/n$. This multiplication is iterated until the values in $\vec{r}$ converge at a limit of 0.00001, as seen in equation \ref{submitterRank}. This final value for $\vec{r}$ is the resulting topic-specific rank of all users in the dataset.
+\begin{equation}
+\label{submitterRank}
+r^{i+1}=M*r^{i} \;\; \;\;\;\;\;(r^{i}-r^{i+1})\rightarrow0.00001
+\end{equation}
 
 \section{How to Measure Success}
 
