@@ -9,3 +9,9 @@ This is the R-code used to perform all of the descriptive stats
 
 ## FormBasedSegmentation.py
 This is python code, mostly from a project done for Fall '18. Here I attempted to segment users via k-means clustering based only on which opportunities they had submitted to. The algorithm worked, but failed to produce meaningful/cohesive results.
+
+## SubmitterRankFunctions
+Includes the cleanest current version of the SubmitterRank algorithm code, with README about specific functions
+
+## SubmitterRankScratchCode
+Includes the in-progress/working code for the SubmitterRank algorithm and result comparison. This is where I fiddle with weightings and sample sizes, etc.
