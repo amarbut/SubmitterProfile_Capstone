@@ -96,7 +96,8 @@ def createFormScores (con, discoverTags, usecaseTags, keywordList):
     
     print("Combining scores for", len(formSet), "forms")
     formDict = {}
-    for form in formSet:
+    for idx, form in enumerate(formSet):
+        print("Scoring form", idx, "out of", len(formSet))
         if form in keySet:
             row = keyScores[np.where(keyScores[:,0]==form)]
             if row[0,1] is None:
@@ -202,7 +203,7 @@ def createTransitionMatrix(commonDf, userSet):
     #create square matrix with productScores as values  
     print("Forming square matrix of users")
     commonMatrix = pd.crosstab(index = commonDf['user1'], columns = commonDf['user2'], values = commonDf['topicScore'], aggfunc = "sum")
-
+    n = len(userSet)
     #add together all pair topic scores for each user
     totalScoreDict = {}
     print("Calculating total topic scores for each user")
@@ -218,13 +219,13 @@ def createTransitionMatrix(commonDf, userSet):
             commonMatrix[(commonMatrix.index == user)] *= prob
         #if no common forms, equal "probability" of linking to any other user
         except ZeroDivisionError:
-            commonMatrix[(commonMatrix.index == user)] = [[1/500]*500]
+            commonMatrix[(commonMatrix.index == user)] = [[1/n]*n]
             pass
     
     return commonMatrix
 
 def rankIteration(userDf, commonMatrix):
-    
+    n = len(userDf[0])
     #re-order matrix rows and user scores to be the same
     print("Re-ordering and transforming matrices")
     row_order = commonMatrix.index.tolist()
@@ -241,18 +242,18 @@ def rankIteration(userDf, commonMatrix):
 
     #add teleportation operation
     d = 0.85
-    withTeleport = (d * userArray) + ((1-d)*userVector*np.ones([500, 500])).T
+    withTeleport = (d * userArray) + ((1-d)*userVector*np.ones([n, n])).T
 
     #start rank vector with equal ranks
     print("Performing iterative matrix multiplication")
-    r = np.ones(500) / 500
+    r = np.ones(n) / n
     lastR = r
     # calculate dot-product of transformation matrix (computed by link 
     # probabilities and teleportation operation) and pagerank vector r
     r = withTeleport @ r
     i = 0 #count the number of iterations until convergence
     #break loop once pagerank vector changes less than 0.0001
-    while np.linalg.norm(lastR - r) > 0.00001 :
+    while np.linalg.norm(lastR - r) > 0.0000001 :
         lastR = r
         r = withTeleport @ r
         i += 1
@@ -261,7 +262,7 @@ def rankIteration(userDf, commonMatrix):
     # match userrank vector back up with userids
     rankedUsers = []
     for i in range(0,len(row_order)):
-        pair = (row_order[i], r[i]*500)
+        pair = (row_order[i], r[i]*n)
         rankedUsers.append(pair)
     
     # sort users by topicrank to find highest ranking users
@@ -271,8 +272,8 @@ def rankIteration(userDf, commonMatrix):
     
     return sortedRank
 
-def submitterRank(con, year, sampleSize = None, discoverTags, usecaseTags, keywordList):
-    activeUsers, userSet = activeUserPull (con, year, sampleSize = None)
+def submitterRank(con, year, discoverTags, usecaseTags, keywordList, sampleSize = None):
+    activeUsers, userSet = activeUserPull (con, year, sampleSize = sampleSize)
     formDict, formSet = createFormScores (con, discoverTags, usecaseTags, keywordList)
     userDf = createUserScores (con, keywordList, userSet)
     commonDf = createUserSimilarity(activeUsers, userSet, formSet, formDict)

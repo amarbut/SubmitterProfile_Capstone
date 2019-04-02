@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 import random
 import pickle
+import os
 
 # Creates connection to redshift db using SDM authentication
 con=psycopg2.connect(dbname= 'any?', host='', 
@@ -46,9 +47,9 @@ cur.execute(activeUserq)
 activeUsers = np.array(cur.fetchall())
 
 activeUserDistinct = list(set(activeUsers[:,0])) 
-sampleUsers =  set(random.sample(activeUserDistinct, 5000)) 
+sampleUsers =  set(random.sample(activeUserDistinct, 500)) 
 #%%   
-pickle.dump(sampleUsers, open("sample5000.pkl", "wb"))
+pickle.dump(sampleUsers, open("sample500.pkl", "wb"))
 sampleUsers = pickle.load(open("sample5000.pkl", "rb"))         
 #%%
 #create lists of keywords
@@ -201,22 +202,25 @@ filmKeyscores = set(keyscoresFilm[:,0])
 filmProductSet = filmKeyscores.union(filmUsecase).union(filmDiscover)
 
 filmProductDict = {}
-for product in filmProductSet:
+for idx, product in enumerate(filmProductSet):
+    print("Scoring", idx)
     if product in filmKeyscores:
         row = keyscoresFilm[np.where(keyscoresFilm[:,0]==product)]
         if row[0,1] is None:
             row[0,1] = 0
         if row[0,2] is None:
             row[0,2] = 0
+    else:
+        row = np.ones([1,3])*0
     if product in filmUsecase:
-        usecase = 2
+        usecase = 4
     else:
         usecase = 0
     if product in filmDiscover:
-        discover = 2
+        discover = 4
     else:
         discover = 0
-    filmProductDict[product]= row[0,1]+ 2*row[0,2]+usecase+discover
+    filmProductDict[product]= 2*row[0,1]+ 4*row[0,2]+usecase+discover
 
 #%%
 #collect userids based on keywords in names and descriptions
@@ -230,12 +234,13 @@ filmUserScores = np.array(cur.fetchall())
 
 filmUserScoreDict = {}
 for row in filmUserScores:
-    filmUserScoreDict[row[0]]=row[1]
+    filmUserScoreDict[row[0]]=4*row[1]
 
 #%%
 #create topic scores for all active users
 filmUserDict = {}
-for user in sampleUsers:
+for idx, user in enumerate(sampleUsers):
+    print("Pairing", idx)
     if user in filmUserScoreDict:
         filmUserDict[user] = 1 + int(filmUserScoreDict[user])
     else:
@@ -271,6 +276,7 @@ for idx, user1 in enumerate(submitDict):
             commonDict[(user1,user2)] = common
     checked.add(user1)
 #%%
+pickle.dump(commonDict, open("commonDict_sample500.pkl", "wb"))
 commonDict = pickle.load(open("commonDict_sample5000.pkl", "rb"))
 #%%   
 #create product topic score for each user pair and add to df
@@ -290,50 +296,77 @@ for idx, pair in enumerate(commonDict):
     commonDf = pd.concat([commonDf, row], ignore_index = True)
     row2 = pd.DataFrame([[user2, user1, score]], columns = ['user1', 'user2', 'topicScore'])
     commonDf = pd.concat([commonDf, row2], ignore_index = True)
-    if idx % 100000 == 0:
-        commonDf = commonDf.drop_duplicates()
-        with open("sample5000dfs/scoredf_sample5000_"+str(counter)+".pkl", "wb") as pf:
-            pickle.dump(commonDf, pf)
-        commonDf = pd.DataFrame(columns = ['user1', 'user2', 'topicScore'])
-        counter += 1
+#    if idx % 100000 == 0:
+#        commonDf = commonDf.drop_duplicates()
+#        with open("sample5000dfs/scoredf_sample5000_"+str(counter)+".pkl", "wb") as pf:
+#            pickle.dump(commonDf, pf)
+#        commonDf = pd.DataFrame(columns = ['user1', 'user2', 'topicScore'])
+#        counter += 1
 
+pickle.dump(commonDf, open("sample500_commonDf.pkl", "wb"))
+#%%
+#commonDf = pd.DataFrame(columns = ['user1', 'user2', 'topicScore'])
+#
+#for df in os.listdir("sample5000dfs"):
+#    print("Adding", df)
+#    filename = "sample5000dfs/"+df
+#    smalldf = pickle.load(open(filename, "rb"))
+#    commonDf = pd.concat([commonDf, smalldf], ignore_index = True)
+#commonDf = commonDf.drop_duplicates()
+#  
 #%%
 #create square matrix with productScores as values
     
 commonMatrix = pd.crosstab(index = commonDf['user1'], columns = commonDf['user2'], values = commonDf['topicScore'], aggfunc = "sum")
 
+pickle.dump(commonMatrix, open("sample500_commonMatrix.pkl", "wb"))
+commonMatrix = pickle.load(open("sample5000_commonMatrix.pkl", "rb"))
 #%%
 #add together all pair topic scores for each user
 totalScoreDict = {}
 
-for user in sampleUsers:
-    score = sum(commonDf.loc[commonDf['user1']== user]['topicScore'])
-    totalScoreDict[user]= score
-    
+for idx, user in enumerate(sampleUsers):
+    if user not in totalScoreDict:
+        print("User", idx)
+        score = sum(commonDf.loc[commonDf['user1']== user]['topicScore'])
+        totalScoreDict[user]= score
+
+
+totalScoreDict = pickle.load(open("sample5000_totalScoreDict.pkl", "rb")) 
+
 #%%
 #replace raw scores in commonDf with score "probability"
+commonMatrix = commonMatrix.fillna(0)
+commonMatrixWgt = 2*commonMatrix
+commonMatrixWgt4 = 4*commonMatrix
+#%%
+totalScoreWgt = {}
+for user in commonMatrixWgt.index:
+    totalScoreWgt[user] = sum(commonMatrixWgt[user])
+#%%
 
-for user in commonMatrix.index:
+for idx, user in enumerate(commonMatrixWgt.index):
+    print("User", idx)
     try:
-        prob = 1/totalScoreDict[user]
-        commonMatrix[(commonMatrix.index == user)] *= prob
+        prob = 1/totalScoreWgt[user]
+        commonMatrixWgt[(commonMatrixWgt.index == user)] *= prob
     #if no common forms, equal "probability" of linking to any other user
     except ZeroDivisionError:
-        commonMatrix[(commonMatrix.index == user)] = [[1/500]*500]
+        commonMatrixWgt[(commonMatrixWgt.index == user)] = [[1/5000]*5000]
         pass
 
 #%%
 #reorder matrix columns to be in same order as rows
         
-row_order = commonMatrix.index.tolist()
-commonMatrix = commonMatrix[row_order]
+row_order = commonMatrixWgt.index.tolist()
+commonMatrixWgt = commonMatrixWgt[row_order]
 
 #reorder userScoreVector to be in same order as matrix rows
 filmUserDf = filmUserDf.reindex(row_order)
 
 #%%
 #convert commonMatrix to numpy array
-userArray = commonMatrix.values.T.astype(float)
+userArray = commonMatrixWgt.values.T.astype(float)
 
 #convert user score vector to np array
 userVector = filmUserDf.iloc[:,0].values.astype(float)
@@ -343,19 +376,19 @@ userVector = userVector/sum(userVector)
 
 #%%
 #add teleportation operation
-d = 0.85
-withTeleport = (d * userArray) + ((1-d)*userVector*np.ones([500, 500])).T
+d = 0.5
+withTeleport = (d * userArray) + ((1-d)*userVector*np.ones([5000, 5000])).T
 
 #%%
 #start rank vector with equal ranks
-r = np.ones(500) / 500
+r = np.ones(5000) / 5000
 lastR = r
 # calculate dot-product of transformation matrix (computed by link 
 # probabilities and teleportation operation) and pagerank vector r
 r = withTeleport @ r
 i = 0 #count the number of iterations until convergence
 #break loop once pagerank vector changes less than 0.0001
-while np.linalg.norm(lastR - r) > 0.00001 :
+while np.linalg.norm(lastR - r) > 0.0000001 :
     lastR = r
     r = withTeleport @ r
     i += 1
@@ -364,7 +397,7 @@ print(str(i) + " iterations to convergence.")
 # match userrank vector back up with userids
 rankedUsers = []
 for i in range(0,len(row_order)):
-    pair = (row_order[i], r[i]*500)
+    pair = (row_order[i], r[i]*5000)
     rankedUsers.append(pair)
 
 # sort users by topicrank to find highest ranking users
@@ -373,7 +406,7 @@ sortedRank = sorted(rankedUsers, key = lambda tup: tup[1], reverse = True)
 print(sortedRank[0:5])
 #%%
 #export to txt for visualization and comparison in R
-with open("sortedSmallUserRank.txt", "w", encoding = "utf-8") as file:
+with open("sortedSampleUserRank_lowd_5000.txt", "w", encoding = "utf-8") as file:
     headers = ["user", "rank"]
     file.write("\t".join(headers)+"\n")
     for pair in sortedRank:
@@ -410,9 +443,9 @@ from users
 """
 
 cur.execute(oldUserListq)
-oldUserList = np.array(cur.fetchall())# retrieved 106 users
+oldUserList = np.array(cur.fetchall())# retrieved 1192 users
 
-with open("smallOldUserList.txt", "w", encoding = "utf-8") as file:
+with open("sampleOldUserList_500.txt", "w", encoding = "utf-8") as file:
     file.write("userid"+"\n")
     for user in list(oldUserList[:,0]):
         file.write(user+"\n")
@@ -447,9 +480,9 @@ join formScores fs on u.userid = fs.userid
 """
 
 cur.execute(oldScoreListq)
-oldScoreList = np.array(cur.fetchall())#retrieved 116 users
+oldScoreList = np.array(cur.fetchall())#retrieved 1 users
 
-with open("smallOldscoreList.txt", "w", encoding = "utf-8") as file:
+with open("sampleOldscoreList_500.txt", "w", encoding = "utf-8") as file:
     file.write("\t".join(["userid", "userScore", "formDescScore", "formNameScore"])+"\n")
     for idx, user in enumerate(list(oldScoreList[:,0])):
         userScore = oldScoreList[idx,1]
