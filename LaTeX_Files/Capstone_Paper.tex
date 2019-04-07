@@ -1,11 +1,10 @@
-\documentclass[]{report}   % list options between brackets
+\documentclass[12pt]{report}   % list options between brackets
 \usepackage{titlesec}
 \usepackage{hyperref}
 \usepackage[margin=1.25in, footskip = 0.5in]{geometry}
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{placeins}
-\usepackage{appendix}
 \usepackage{apacite}
 \usepackage{caption}
 
@@ -146,13 +145,13 @@ As Submittable has grown, it has seen several generations of labeling methodolog
 Only about 40 thousand opportunities are associated with a usecase label (are hosted by an organization with a usecase label). However, this low number is unsurprising since the labels only started being applied in a consistent manner in 2018, and there were also roughly 40 thousand active opportunities in 2018. The ten usecase labels with the highest number of associated opportunities are shown in Table \ref{table:topusecase}.  
 
 67 thousand discover labels are associated with opportunities, however, since the relationship between the discover label and an opportunity is many-to-one, only 20 thousand unique opportunities are associated with discover labels. Also, since many of the discover labels are overlapping (``book" vs. ``memoir" vs. ``stories"), I needed to map these onto broader category labels. Submittable identified grant applicants, filmmakers, photographers, and writers (with the subcategories of poetry, fiction, and non-fiction writers) as specific areas of interest, so I grouped the discover labels under these categories. Table \ref{table:discovergroup} shows the number of unique forms with discover labels that fall into these categories. Since we know that only 20 thousand unique opportunities are associated with discover labels, this table (which sums to about 40 thousand) reiterates the many-to-one relationship between discover labels and opportunities.
-\begin{figure}[t]
-\begin{minipage}[t]{0.45\textwidth}
+\begin{figure}[h]
+\begin{minipage}{0.45\textwidth}
 \captionsetup{font=scriptsize}
 \centering
 \captionof{table}{ Top Ten Usecase Labels}
 \label{table:topusecase}
-\begin{tabular}[t]{rlr}
+\begin{tabular}{rlr}
   \hline
  & Usecase & Count \\ 
   \hline
@@ -167,17 +166,16 @@ Only about 40 thousand opportunities are associated with a usecase label (are ho
   9 & Fellowship & 1613 \\ 
   10 & Scholarships & 1311 \\ 
    \hline
-\vspace{20cm}
 \end{tabular}
 \end{minipage}
 \hfill
-\begin{minipage}[t]{0.45\textwidth}
+\begin{minipage}{0.45\textwidth}
 \captionsetup{font=scriptsize}
      \centering
 \captionof{table}{Grouped Discover Labels}
 \label{table:discovergroup}
 \centering
-\begin{tabular}[t]{rlr}
+\begin{tabular}{rlr}
   \hline
  & Discover Group & Count \\ 
   \hline
@@ -229,14 +227,14 @@ The PageRank algorithm, as described above, is used to rank websites based on th
     \begin{minipage}[t]{0.48\textwidth}
 	\captionsetup{font=scriptsize}
         \centering
-        \includegraphics[width=0.9\textwidth]{Marbut_DemoNetwork.png} % first figure itself
+        \includegraphics[scale=0.8]{Marbut_DemoNetwork.png} % first figure itself
         \caption{Small Network of Websites: Each letter represents one website, and each arrow represents a link from one website to another.}
 	  \label{fig:demoNet}
     \end{minipage}\hfill
     \begin{minipage}[t]{0.48\textwidth}
 	\captionsetup{font=scriptsize}
         \centering
-        \includegraphics[width=0.9\textwidth]{Marbut_DemoMatrix.png} % second figure itself
+        \includegraphics[scale=0.8]{Marbut_DemoMatrix.png} % second figure itself
         \caption{Random Surfing Probabilities: Each column represents the probability of navigating from the column page to all other pages in the network by only clicking on links.}
 	  \label{fig:demoProb}
     \end{minipage}
@@ -391,15 +389,15 @@ Another possible adjustment that would theoretically affect the influence of the
 
 \chapter{Conclusion} 
 
-The goal of this project was to improve upon the current methods used at Submittable to identify users who may be interested in specific opportunities. It's difficult to say whether the results found above are a significant improvement on the current methods, but we can very confidently say that the two methods provide different results, which is almost as important. If SubmitterRank resulted in a list of users that only differed very slightly from that created by straight keyword-matching, it would not be worth the additional computational and infrastructure requirements to change the current methods. Additionally, while the comparison is admittedly coarse, examining the top five submitters from the SubmitterRank and raw topic score lists does suggest that the SubmitterRank algorithm may be identifying more relevant submitters. With the limitations in scope and available resources for this project, these results provide a solid and promising starting point for further research and development of the SubmitterRank methods.
+The goal of this project was to improve upon the current methods used at Submittable to identify users who may be interested in specific opportunities. It's difficult to say whether the results found above are an improvement on the current methods, but we can confidently say that the two methods provide different results, which is almost as important. If SubmitterRank resulted in a list of users that only differed very slightly from that created by straight keyword-matching, it would not be worth the additional computational and infrastructure requirements to change the current methods. Additionally, while the comparison is coarse, examining the top five submitters from the SubmitterRank and raw topic score lists suggests that the SubmitterRank algorithm may be identifying more relevant submitters. With the limitations in scope and available resources for this project, these results provide a promising starting point for further research and development of the SubmitterRank methods.
 
 \section{Limitations}
 
-In addressing submitter segmentation, the biggest limitation by far has been the vast amount of data to be processed and the time and resources necessary to do so. This was the case when exploring more traditional segmentation methods \cite{marbut_2018}, and continued to be the case with this SubmitterRank project. It may have been possible to write a script that would create the transition matrices and perform iterative multiplication on them in batches such that memory and processing power was no longer a limitation, but this process was estimated to take several months if performed on all 400 thousand eligible submitters. While this is a potential solution for a one-off calculation, such as for research alone, this is not at all practical for the intended purposes, which would need to be completed on a 24-hour timetable at most.
+In addressing submitter segmentation, the biggest limitation has been the vast amount of data to be processed and the time and resources necessary to do so. This was the case when exploring more traditional segmentation methods \cite{marbut_2018}, and continued to be the case with this SubmitterRank project. It may still be possible to write a script that would create the transition matrices and perform iterative multiplication on them in batches such that memory and processing power is no longer a limitation, but without major modifications to the original code, this process was estimated to take several months if performed on all 400 thousand eligible submitters. While currents methods may be sufficient for a one-off calculation, such as for research alone, this is not at all practical for the intended purposes, which would need to be completed on a 24-hour timetable at most.
 
-Without being able to use the entire dataset of eligible submitters, we are also unable to make meaningful assertions about the efficacy of the SubmitterRank adaptation. The strength behind SubmitterRank comes largely from its ability to rank users based on their connectivity with other users in the Submittable network. However, if only a part of the network is used to build these ranks, we cannot truly know how the users would be ranked in the context of the entire network -- the presence or absence of a few highly topical users might change the entire rank order. Furthermore, we cannot measure the actual performance of a marketing campaign sent to a list created by SubmitterRank on only a sample of users for two reasons: 1. Submittable's clients expect marketing services to reach as many users as are likely to be interested (and to not be limited to a random sample); 2. The performance of this sample list would be measured in comparison to that of a keyword-matching list created from the entire bank of eligible users, and thus would not truly be comparable.
+Without being able to use the entire dataset of eligible submitters, we are also unable to make meaningful assertions about the efficacy of the SubmitterRank adaptation. The strength behind SubmitterRank comes largely from its ability to rank users based on their connectivity with other users in the Submittable network. However, if only a part of the network is used to build these ranks, we cannot truly know how the users would be ranked in the context of the entire network -- the presence or absence of a few highly topical users might change the entire rank order. Furthermore, we cannot measure the actual performance of a marketing campaign sent to a list created by SubmitterRank on only a sample of users for two reasons: 1. Submittable's clients expect marketing services to reach as many users as are likely to be interested (and not to be limited to a random sample); 2. The performance of this sample list would be measured in comparison to that of a keyword-matching list created from the entire bank of eligible users, and thus would not truly be comparable.
 
-Finally, it is necessary to acknowledge that the SubmitterRank algorithm still relies on an imperfect list of topic-specific keywords. As such, the results are still quite susceptible to error based on the choice of these keywords. For example, the results from our 5000-user sample captured quite a few photo-journalists. This may seem to indicate an error in the algorithm, however closer inspection shows that most of these users have the word ``documentary" in their profile description or in the name/description of an opportunity to which they've submitted. Since ``documentary" is on the list of film-related keywords used to create topic scores, the inclusion of these photo-journalists is due to the imprecision of the keywords and not the fault of the algorithm. In this way, an algorithm based on keywords will never be as accurate as asking users to self-identify their interests.
+Finally, it is necessary to acknowledge that the SubmitterRank algorithm still relies on an imperfect list of topic-specific keywords. As such, the results are still susceptible to error based on the choice of these keywords. For example, the results from our 5000-user sample captured quite a few photo-journalists. This seems to indicate a failure of the algorithm, however closer inspection shows that most of these users  were matched on the word ``documentary". Since ``documentary" is on the list of film-related keywords used to create topic scores, the inclusion of these photo-journalists is due to the imprecision of the keywords and not the fault of the algorithm. In this way, an algorithm based on keywords will never be as accurate as asking users to self-identify their interests.
     
 \section{Future Directions}
 
@@ -412,14 +410,16 @@ As mentioned above, it's also possible that Submittable will decide to ask users
 \bibliography{biblio}
 \bibliographystyle{apacite}
 
-\appendix
-\appendixpage
-\addappheadtotoc
-\section{Label Lists}
-\label{app:labels}
+%\appendix
+%\addcontentsline{toc}{chapter}{Appendix}
+%\section{Usecase Labels}
+\chapter{Appendix A: Usecase Labels}
+\label{app:usecase}
 \begin{minipage}{0.5\textwidth}
+\small
 \centering
 \begin{tabular}{rl}
+
   \hline
  & Usecase \\ 
   \hline
@@ -454,10 +454,14 @@ As mentioned above, it's also possible that Submittable will decide to ask users
    \hline
 \end{tabular}
 \end{minipage}
-\newpage
 
-\begin{figure}
-\begin{minipage}[t]{0.24\textwidth}
+\newpage
+%\section{Discover Labels}
+%\label{app:discover}
+\chapter{Appendix B: Discover Labels}
+\begin{figure}[h]
+\scriptsize
+\begin{minipage}[h]{0.24\textwidth}
 
 \begin{tabular}{rl}
   \hline
@@ -507,21 +511,22 @@ As mentioned above, it's also possible that Submittable will decide to ask users
   42 & sound \\ 
   43 & collaborative \\ 
   44 & international \\ 
-  45 & graphic-novel \\ 
-  46 & article \\ 
-  47 & short-play \\ 
-  48 & theater \\ 
-  49 & erotica \\ 
-  50 & job \\ 
+    45 & graphic-novel \\ 
   \hline
 \end{tabular}
     \end{minipage}
-\begin{minipage}[t]{0.24\textwidth}
+\begin{minipage}[h]{0.24\textwidth}
 
 \begin{tabular}{rl}
   \hline
  & Discover.Label \\ 
   \hline
+
+  46 & article \\ 
+  47 & short-play \\ 
+  48 & theater \\ 
+  49 & erotica \\ 
+  50 & job \\ 
   51 & science \\ 
   52 & criticism \\ 
   53 & hybrid \\ 
@@ -562,6 +567,16 @@ As mentioned above, it's also possible that Submittable will decide to ask users
   88 & season \\ 
   89 & asian-american \\ 
   90 & alcohol \\ 
+  
+  \hline
+\end{tabular}
+    \end{minipage}
+\begin{minipage}[h]{0.24\textwidth}
+
+\begin{tabular}{rl}
+  \hline
+ & Discover.Label \\ 
+  \hline
   91 & fashion \\ 
   92 & midwest \\ 
   93 & VR/360 \\ 
@@ -572,15 +587,6 @@ As mentioned above, it's also possible that Submittable will decide to ask users
   98 & mental-health \\ 
   99 & journal \\ 
   100 & poetry \\ 
-  \hline
-\end{tabular}
-    \end{minipage}
-\begin{minipage}[t]{0.24\textwidth}
-
-\begin{tabular}{rl}
-  \hline
- & Discover.Label \\ 
-  \hline
   101 & magazine \\ 
   102 & anthology \\ 
   103 & writing \\ 
@@ -616,6 +622,16 @@ As mentioned above, it's also possible that Submittable will decide to ask users
   133 & comics \\ 
   134 & pitch \\ 
   135 & illustration \\ 
+ \hline
+\end{tabular}
+    \end{minipage}
+\begin{minipage}{0.24\textwidth}
+
+\begin{tabular}[h]{rl}
+  \hline
+ & Discover.Label \\ 
+  \hline
+
   136 & religion \\ 
   137 & fellowship \\ 
   138 & performance \\ 
@@ -631,15 +647,6 @@ As mentioned above, it's also possible that Submittable will decide to ask users
   148 & indigenous \\ 
   149 & readings \\ 
   150 & media \\ 
- \hline
-\end{tabular}
-    \end{minipage}
-\begin{minipage}{0.24\textwidth}
-
-\begin{tabular}[t]{rl}
-  \hline
- & Discover.Label \\ 
-  \hline
   151 & music \\ 
   152 & canada \\ 
   153 & gallery \\ 
@@ -668,7 +675,7 @@ As mentioned above, it's also possible that Submittable will decide to ask users
   176 & tequila \\ 
   177 & service-learning \\ 
    \hline
-\vspace{9.26cm}
+\vspace{.82cm}
 \end{tabular}
 
     \end{minipage}
